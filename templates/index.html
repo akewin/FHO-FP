@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP8266 TTS Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+        }
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button i {
+            margin-right: 5px;
+        }
+        #status {
+            font-size: 24px;
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            animation: fadeIn 1s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            var socket = io();
+            var statusElement = document.getElementById('status');
+
+            socket.on('esp8266_message', function(data) {
+                statusElement.innerText = data.message;
+                statusElement.style.animation = 'fadeIn 1s';
+                setTimeout(() => {
+                    statusElement.style.animation = 'fadeOut 1s';
+                }, 3000);
+            });
+
+            socket.on('spoken', function(data) {
+                statusElement.innerText = data.message;
+                statusElement.style.animation = 'fadeIn 1s';
+                setTimeout(() => {
+                    statusElement.style.animation = 'fadeOut 1s';
+                }, 3000);
+            });
+        });
+
+        function speak(message) {
+            var socket = io();
+            socket.emit('speak', message);
+        }
+
+        function sendCustomMessage() {
+            var customMessage = document.getElementById('custom-message').value;
+            if (customMessage) {
+                speak(customMessage);
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>MyVoice</h1>
+        <div class="button-grid">
+            <button onclick="speak('Estou feliz')" style="background-color: #4CAF50;">
+                <i class="fas fa-smile"></i>Feliz
+            </button>
+            <button onclick="speak('Eu gostaria de água')" style="background-color: #2196F3;">
+                <i class="fas fa-tint"></i>Água
+            </button>
+            <button onclick="speak('Preciso de ajuda')" style="background-color: #FFC107;">
+                <i class="fas fa-hands-helping"></i>Ajuda
+            </button>
+            <button onclick="speak('Estou com fome')" style="background-color: #FF5722;">
+                <i class="fas fa-utensils"></i>Fome
+            </button>
+        </div>
+        <div style="padding-top: 10px;"">
+            <input type="text" id="custom-message" placeholder="Digite sua mensagem">
+            <button onclick="sendCustomMessage()" style="background-color: #607D8B;">
+                <i class="fas fa-paper-plane"></i>Enviar
+            </button>
+        </div>
+        <div id="status">Waiting for messages...</div>
+    </div>
+</body>
+</html>
