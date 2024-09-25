@@ -7,8 +7,21 @@ socketio = SocketIO(app)
 
 def speak_message(message):
     engine = pyttsx3.init()
+    voices = engine.getProperty('voices')
+    
+    # List all available voices
+    for voice in voices:
+        print(f"Voice: {voice.name}, ID: {voice.id}, Lang: {voice.languages}")
+
+    # Set the voice to Portuguese (Brazil)
+    for voice in voices:
+        if 'pt_BR' in voice.id:
+            engine.setProperty('voice', voice.id)
+            break
+    else:
+        print("Portuguese (Brazil) voice not found. Using default voice.")
+
     engine.setProperty('rate', 150)
-    engine.setProperty('voice', 'pt-br')
     engine.say(message)
     engine.runAndWait()
     engine.stop()
